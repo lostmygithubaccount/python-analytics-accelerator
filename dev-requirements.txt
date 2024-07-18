@@ -1,0 +1,4 @@
+#uv
+ruff
+build
+nbclient
