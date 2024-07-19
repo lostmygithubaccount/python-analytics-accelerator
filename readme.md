@@ -10,7 +10,7 @@ This project uses:
 2. **Execution engine**: DuckDB and ClickHouse (local and remote)
 3. **Data storage**: Delta Lake tables (local and/or cloud storage)
 
-You can swap out your execution engine(s) or data storage format(s) as needed, mixing and matching as in a **data mesh** fashion.
+You can mix and match these components as needed.
 
 > [!CAUTION]
 > This accelerator is not necessarily production-ready, but might be a good starting point. For now, it is primarily intended as an educational resource.
