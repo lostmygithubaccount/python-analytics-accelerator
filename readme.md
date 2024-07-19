@@ -7,7 +7,7 @@
 This project uses:
 
 1. **User interface**: Ibis (Python dataframe code and/or SQL)
-2. **Execution engine**: DuckDB and ClickHouse (local and remote)
+2. **Execution engine**: DuckDB (local) and ClickHouse (remote)
 3. **Data storage**: Delta Lake tables (local and/or cloud storage)
 
 You can mix and match these components as needed.
