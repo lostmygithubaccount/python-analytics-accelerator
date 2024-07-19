@@ -61,6 +61,9 @@ Ingest from external sources:
 acc ingest
 ```
 
+> [!TIP]
+> This creates JSON and Parquet data in `datalake/_raw`.
+
 ### 4. run data DAG
 
 Run data DAG:
@@ -68,6 +71,9 @@ Run data DAG:
 ```bash
 acc run
 ```
+
+> [!TIP]
+> This creates Delta Lake tables in `datalake/bronze`, `datalake/silver`, and `datalake/gold`.
 
 ### 5. dashboard
 
