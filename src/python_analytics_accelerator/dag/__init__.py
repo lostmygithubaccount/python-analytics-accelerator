@@ -1,4 +1,3 @@
-# imports
 from dagster import Definitions
 
 from python_analytics_accelerator.dag.jobs import jobs

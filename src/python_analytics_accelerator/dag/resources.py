@@ -1,15 +1,24 @@
 import os
 import ibis
 import gcsfs
+import logging as log
 
+from dotenv import load_dotenv
 from dagster import ConfigurableIOManager
-from python_analytics_accelerator.dag.config import BRONZE, CLOUD, BUCKET, DATA_DIR
+from python_analytics_accelerator.dag.config import DATA_DIR, BRONZE
+
+## configure logging
+log.basicConfig(level=log.INFO)
+
+## load environment variables
+load_dotenv()
 
 
 # define data catalog
 class Catalog:
     def __init__(self, data_dir=DATA_DIR):
         self.data_dir = data_dir
+        self.con = ibis.duckdb.connect()
 
     def list_groups(self):
         return sorted(
@@ -28,7 +37,7 @@ class Catalog:
     def table(self, table_name, group_name=None):
         if group_name is None:
             group_name = table_name.split("_")[0].upper()
-        return ibis.read_delta(
+        return self.con.read_delta(
             os.path.join(DATA_DIR, group_name, f"{table_name}.delta")
         )
 
@@ -40,16 +49,21 @@ class DeltaLakeIOManager(ConfigurableIOManager):
     """
 
     extension: str = "delta"
-    base_path: str = f"gs://{BUCKET}/{DATA_DIR}" if CLOUD else DATA_DIR
+    bucket: str = os.getenv("BUCKET")
+    cloud: bool = (
+        True if os.getenv("BUCKET") is not None and (len(bucket) != 0) else False
+    )
+    base_path: str = f"gs://{bucket}/{DATA_DIR}" if cloud else DATA_DIR
 
     def handle_output(self, context, obj):
         """Called on the output of an asset."""
-        if CLOUD:
+        if self.cloud:
+            log.info(f"Using bucket: {self.bucket}")
             fs = gcsfs.GCSFileSystem()
             ibis.get_backend(obj).register_filesystem(fs)
 
         group_name, dirname, filename = self._get_paths(context)
-        if not CLOUD:
+        if not self.cloud:
             os.makedirs(dirname, exist_ok=True)
         output_path = os.path.join(dirname, filename)
 
@@ -59,7 +73,8 @@ class DeltaLakeIOManager(ConfigurableIOManager):
 
     def load_input(self, context):
         """Called on the input of an asset."""
-        if CLOUD:
+        if self.cloud:
+            log.info(f"Using bucket: {self.bucket}")
             fs = gcsfs.GCSFileSystem()
             ibis.get_backend().register_filesystem(fs)
 

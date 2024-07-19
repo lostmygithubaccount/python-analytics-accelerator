@@ -64,6 +64,7 @@ def ingest_pypi(pypi_package):
     """
     Ingest PyPI data.
     """
+    log.info(f"Fetching data for {pypi_package}...")
 
     # define external source
     host = "clickpy-clickhouse.clickhouse.com"
@@ -89,7 +90,9 @@ def ingest_pypi(pypi_package):
 
     output_dir = os.path.join(DATA_DIR, RAW_DATA_DIR, RAW_DATA_PYPI_DIR)
     os.makedirs(output_dir, exist_ok=True)
+    log.info(f"\tWriting data to {output_dir}...")
     t.to_parquet(os.path.join(output_dir, "downloads.parquet"))
+    log.info(f"\tData written to {output_dir}...")
 
 
 def ingest_gh(gh_repo):

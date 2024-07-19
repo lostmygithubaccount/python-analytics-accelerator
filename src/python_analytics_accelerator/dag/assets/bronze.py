@@ -24,6 +24,14 @@ def add_loaded_at(t):
     return t
 
 
+def constraints(t):
+    """Check common constraints for bronze tables."""
+
+    assert t.count().to_pyarrow().as_py() > 0, "table is empty!"
+
+    return t
+
+
 # bronze data assets
 @dagster.asset
 def bronze_pypi_downloads():
@@ -37,7 +45,7 @@ def bronze_pypi_downloads():
     bronze_pypi_downloads = bronze_pypi_downloads.order_by(ibis._["count"].desc())
 
     # add loaded_at column
-    bronze_pypi_downloads = bronze_pypi_downloads.pipe(add_loaded_at)
+    bronze_pypi_downloads = bronze_pypi_downloads.pipe(add_loaded_at).pipe(constraints)
 
     return bronze_pypi_downloads
 
@@ -51,7 +59,7 @@ def bronze_gh_commits():
     bronze_gh_commits = ibis.read_json(data_glob)
 
     # add loaded_at column
-    bronze_github_commits = bronze_gh_commits.pipe(add_loaded_at)
+    bronze_github_commits = bronze_gh_commits.pipe(add_loaded_at).pipe(constraints)
 
     return bronze_github_commits
 
@@ -65,7 +73,7 @@ def bronze_gh_issues():
     bronze_gh_issues = ibis.read_json(data_glob)
 
     # add loaded_at column
-    bronze_github_issues = bronze_gh_issues.pipe(add_loaded_at)
+    bronze_github_issues = bronze_gh_issues.pipe(add_loaded_at).pipe(constraints)
 
     return bronze_github_issues
 
@@ -81,7 +89,7 @@ def bronze_gh_prs():
     bronze_gh_prs = ibis.read_json(data_glob)
 
     # add loaded_at column
-    bronze_github_prs = bronze_gh_prs.pipe(add_loaded_at)
+    bronze_github_prs = bronze_gh_prs.pipe(add_loaded_at).pipe(constraints)
 
     return bronze_github_prs
 
@@ -95,7 +103,7 @@ def bronze_gh_forks():
     bronze_gh_forks = ibis.read_json(data_glob)
 
     # add loaded_at column
-    bronze_github_forks = bronze_gh_forks.pipe(add_loaded_at)
+    bronze_github_forks = bronze_gh_forks.pipe(add_loaded_at).pipe(constraints)
 
     return bronze_github_forks
 
@@ -111,7 +119,7 @@ def bronze_gh_stars():
     bronze_gh_stars = ibis.read_json(data_glob)
 
     # add loaded_at column
-    bronze_github_stars = bronze_gh_stars.pipe(add_loaded_at)
+    bronze_github_stars = bronze_gh_stars.pipe(add_loaded_at).pipe(constraints)
 
     return bronze_github_stars
 
@@ -125,6 +133,6 @@ def bronze_gh_watchers():
     bronze_gh_watchers = ibis.read_json(data_glob)
 
     # add loaded_at column
-    bronze_github_watchers = bronze_gh_watchers.pipe(add_loaded_at)
+    bronze_github_watchers = bronze_gh_watchers.pipe(add_loaded_at).pipe(constraints)
 
     return bronze_github_watchers

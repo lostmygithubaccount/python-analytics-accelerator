@@ -1,4 +1,3 @@
-# imports
 from dagster import load_assets_from_modules
 
 from python_analytics_accelerator.dag.assets import bronze, silver, gold

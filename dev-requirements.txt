@@ -3,3 +3,5 @@ ruff
 build
 twine
 nbclient
+
+-e .
