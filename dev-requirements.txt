@@ -4,4 +4,4 @@ build
 twine
 nbclient
 
--e .
+-r requirements.txt
