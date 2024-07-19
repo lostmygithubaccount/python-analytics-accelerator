@@ -7,7 +7,7 @@ allow-direct-references = true
 
 [project]
 name = "python-analytics-accelerator"
-version = "0.2.1"
+version = "0.2.2"
 authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
 description = "Python analytics solution accelerator using composable data systems"
 readme = "readme.md"
