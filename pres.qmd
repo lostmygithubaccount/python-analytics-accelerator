@@ -1,6 +1,6 @@
 ---
 title: "Python analytics accelerator"
-subtitle: "***Composable data system in a box***"
+subtitle: "***Composable data system in a Python package***"
 execute:
   echo: true
 format:
