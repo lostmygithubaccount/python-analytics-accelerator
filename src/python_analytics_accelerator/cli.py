@@ -52,13 +52,13 @@ def check_data_lake_exists() -> bool:
 @app.command()
 def init(
     gh_repo: str = typer.Option(
-        "lostmygithubaccount/python-analytics-accelerator",
+        "substrait-io/substrait",
         "--gh-repo",
         "-g",
         help="the GitHub repository",
     ),
     pypi_package: str = typer.Option(
-        "python-analytics-accelerator", "--pypi-package", "-p", help="the PyPI package"
+        "substrait", "--pypi-package", "-p", help="the PyPI package"
     ),
 ):
     """Initialize the project."""
