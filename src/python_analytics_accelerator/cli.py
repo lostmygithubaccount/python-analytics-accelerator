@@ -65,7 +65,7 @@ def init(
     if not os.path.exists(".env"):
         typer.echo("creating .env...")
         with open(".env", "w") as f:
-            f.write('GH_TOKEN="your_token_here"\n')
+            f.write('GITHUB_TOKEN="your_token_here"\n')
     else:
         typer.echo("found .env")
 
