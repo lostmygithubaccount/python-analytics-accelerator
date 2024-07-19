@@ -44,7 +44,11 @@ acc init
 > [!IMPORTANT]
 > You must edit the `.env` to add your GitHub token or otherwise set `GITHUB_TOKEN` as an environment variable.
 >
-> You can use `gh auth token` to print your GitHub token if you have the GitHub CLI installed.
+> You can use `gh auth token` to print your GitHub token if you have the GitHub CLI installed. For example:
+> 
+> ```bash
+> echo "GITHUB_TOKEN = \"$(gh auth token)\"" > .env
+> ```
 
 ### 3. ingest
 
