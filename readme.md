@@ -70,6 +70,9 @@ Open dashboard:
 acc dashboard
 ```
 
+> [!TIP]
+> This creaetes a `metrics.py` file that you can customize.
+
 ## development
 
 Clone and change into the repository:
