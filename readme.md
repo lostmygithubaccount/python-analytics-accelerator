@@ -42,12 +42,12 @@ acc init
 > Edit the `config.py` file to the GitHub repository and PyPI package you want to analyze.
 
 > [!IMPORTANT]
-> You must edit the `.env` to add your GitHub token or otherwise set `GITHUB_TOKEN` as an environment variable.
+> Edit the `.env` to add your GitHub token or otherwise set `GITHUB_TOKEN` as an environment variable.
 >
 > You can use `gh auth token` to print your GitHub token if you have the GitHub CLI installed. For example:
 > 
 > ```bash
-> echo "GITHUB_TOKEN = \"$(gh auth token)\"" > .env
+> echo "GITHUB_TOKEN=\"$(gh auth token)\"" > .env
 > ```
 
 ### 3. ingest
