@@ -19,6 +19,9 @@ You can mix and match these components as needed.
 
 Get up and running in 5 steps.
 
+> [!CAUTION]
+> A Python virtual environment is recommended.
+
 ### 1. install
 
 Install:
@@ -42,7 +45,7 @@ acc init
 > Edit the `config.py` file to the GitHub repository and PyPI package you want to analyze.
 
 > [!IMPORTANT]
-> Edit the `.env` to add your GitHub token or otherwise set `GITHUB_TOKEN` as an environment variable.
+> Edit the `.env` to add your GitHub token or otherwise set `GITHUB_TOKEN` as an environment variable. The token needs to have the `public_repo` read scope.
 >
 > You can use `gh auth token` to print your GitHub token if you have the GitHub CLI installed. For example:
 > 
