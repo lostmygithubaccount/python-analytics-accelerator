@@ -8,24 +8,29 @@ from python_analytics_accelerator.dag.config import BRONZE, CLOUD, BUCKET, DATA_
 
 # define data catalog
 class Catalog:
-    def __init__(self, data_dir=DATA_DIR, con=ibis.get_backend()):
+    def __init__(self, data_dir=DATA_DIR):
         self.data_dir = data_dir
-        self.con = con
 
     def list_groups(self):
-        return [
-            d
-            for d in os.listdir(self.data_dir)
-            if not (d.startswith("_") or d.startswith("."))
-        ]
+        return sorted(
+            [
+                d
+                for d in os.listdir(self.data_dir)
+                if not (d.startswith("_") or d.startswith("."))
+            ]
+        )
 
     def list_tables(self, group):
-        return [d.split(".")[0] for d in os.listdir(os.path.join(self.data_dir, group))]
+        return sorted(
+            [d.split(".")[0] for d in os.listdir(os.path.join(self.data_dir, group))]
+        )
 
     def table(self, table_name, group_name=None):
         if group_name is None:
             group_name = table_name.split("_")[0].upper()
-        return self.con.read_delta(f"{DATA_DIR}/{group_name}/{table_name}.delta")
+        return ibis.read_delta(
+            os.path.join(DATA_DIR, group_name, f"{table_name}.delta")
+        )
 
 
 # define IO manager(s)

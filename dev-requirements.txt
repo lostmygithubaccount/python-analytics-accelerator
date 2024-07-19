@@ -1,4 +1,5 @@
 #uv
 ruff
 build
+twine
 nbclient

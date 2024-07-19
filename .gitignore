@@ -1,3 +1,5 @@
+*venv
+.env
 .dagster
 datalake
 *.excalidraw
@@ -6,5 +8,7 @@ datalake
 pres.html
 pres.ipynb
 pres_files
+
+dist
 
 /.quarto/

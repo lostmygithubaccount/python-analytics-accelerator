@@ -3,6 +3,12 @@ import dagster
 
 # gold data assets
 @dagster.asset()
+def gold_pypi_downloads(silver_pypi_downloads):
+    """Gold PyPI downloads data."""
+    return silver_pypi_downloads
+
+
+@dagster.asset()
 def gold_gh_commits(silver_gh_commits):
     """Gold GitHub commits data."""
     return silver_gh_commits

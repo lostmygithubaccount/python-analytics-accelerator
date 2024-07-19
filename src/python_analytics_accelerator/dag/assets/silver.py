@@ -23,17 +23,30 @@ def postprocess(t):
     return t
 
 
-# @ibis.udf.scalar.python
-# def clean_version(version: str, patch: bool = True) -> str:
-#     pattern = r"(\d+\.\d+\.\d+)" if patch else r"(\d+\.\d+)"
-#     match = re.search(pattern, version)
-#     if match:
-#         return match.group(1)
-#     else:
-#         return version
-
-
 # silver data assets
+@dagster.asset()
+def silver_pypi_downloads(bronze_pypi_downloads):
+    """Silver PyPI downloads data."""
+
+    def transform(t):
+        # udfs
+        @ibis.udf.scalar.python
+        def clean_version(version: str, patch: bool = True) -> str:
+            pattern = r"(\d+\.\d+\.\d+)" if patch else r"(\d+\.\d+)"
+            match = re.search(pattern, version)
+            if match:
+                return match.group(1)
+            else:
+                return version
+
+        return t
+
+    silver_pypi_downloads = (
+        bronze_pypi_downloads.pipe(preprocess).pipe(transform).pipe(postprocess)
+    )
+    return silver_pypi_downloads
+
+
 @dagster.asset()
 def silver_gh_commits(bronze_gh_commits):
     """Silver GitHub commits data."""

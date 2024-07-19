@@ -1,6 +1,7 @@
 # imports
 import os
-import toml
+import sys
+import ibis
 import json
 import requests
 
@@ -11,7 +12,8 @@ from dotenv import load_dotenv
 from python_analytics_accelerator.dag.config import (
     DATA_DIR,
     RAW_DATA_DIR,
-    RAW_DATA_GITHUB_DIR,
+    RAW_DATA_GH_DIR,
+    RAW_DATA_PYPI_DIR,
 )
 from python_analytics_accelerator.ingest.graphql_queries import (
     issues_query,
@@ -22,29 +24,83 @@ from python_analytics_accelerator.ingest.graphql_queries import (
     watchers_query,
 )
 
+# configure logger
+log.basicConfig(level=log.INFO)
+
 
 # main function
 def main():
+    """
+    Ingest data.
+    """
     # load environment variables
     load_dotenv()
 
-    ingest_gh()
+    # get settings from config.py in the cwd
+    GH_REPO = None
+    PYPI_PACKAGE = None
 
+    try:
+        sys.path.append(os.getcwd())
+        from config import GH_REPO, PYPI_PACKAGE
+    except ImportError:
+        log.error("GH_REPO and PYPI_PACKAGE not set in config.py")
 
-# helper functions
-def write_json(data, filename):
-    # write the data to a file
-    with open(filename, "w") as f:
-        json.dump(data, f, indent=4)
+    log.info(f"GH_REPO={GH_REPO}")
+    log.info(f"PYPI_PACKAGE={PYPI_PACKAGE}")
+
+    assert GH_REPO is not None and len(GH_REPO) > 0, log.error("GH_REPO is not set")
+    assert PYPI_PACKAGE is not None and len(PYPI_PACKAGE) > 0, log.error(
+        "PYPI_PACKAGE is not set"
+    )
+
+    # ingest data
+    ingest_pypi(pypi_package=PYPI_PACKAGE)
+    ingest_gh(gh_repo=GH_REPO)
 
 
 # ingest functions
-def ingest_gh():
+def ingest_pypi(pypi_package):
     """
-    Ingest the GitHub data.
+    Ingest PyPI data.
     """
-    # configure logger
-    log.basicConfig(level=log.INFO)
+
+    # define external source
+    host = "clickpy-clickhouse.clickhouse.com"
+    port = 443
+    user = "play"
+    database = "pypi"
+
+    ch_con = ibis.clickhouse.connect(
+        host=host,
+        port=port,
+        user=user,
+        database=database,
+    )
+
+    # read in data from external source
+    t = ibis.memtable(
+        ch_con.table(
+            "pypi_downloads_per_day_by_version_by_installer_by_type_by_country"
+        )
+        .filter(ibis._["project"] == pypi_package)
+        .to_pyarrow()
+    )
+
+    output_dir = os.path.join(DATA_DIR, RAW_DATA_DIR, RAW_DATA_PYPI_DIR)
+    os.makedirs(output_dir, exist_ok=True)
+    t.to_parquet(os.path.join(output_dir, "downloads.parquet"))
+
+
+def ingest_gh(gh_repo):
+    """
+    Ingest GitHub data.
+    """
+
+    def write_json(data, filename):
+        # write the data to a file
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=4)
 
     # constants
     GRAPH_URL = "https://api.github.com/graphql"
@@ -53,10 +109,6 @@ def ingest_gh():
     GH_TOKEN = os.getenv("GITHUB_TOKEN")
 
     assert GH_TOKEN is not None and GH_TOKEN != "", "GITHUB_TOKEN is not set"
-
-    # load config
-    # config = toml.load("config.toml")["ingest"]["github"]
-    # log.info(f"Using repos: {config['repos']}")
 
     # construct header
     headers = {
@@ -157,6 +209,7 @@ def ingest_gh():
                 filename = get_filename(query_name, page)
                 output_path = os.path.join(output_dir, filename)
                 log.info(f"\t\tWriting data to {output_path}")
+
                 write_json(data, output_path)
 
                 variables["cursor"] = f"{cursor}"
@@ -167,27 +220,26 @@ def ingest_gh():
 
                 # increment page number
                 page += 1
-            except:
+            except Exception as e:
                 # print error if response
-                log.error(f"\t\tFailed to fetch data for {owner}/{repo}")
+                log.error(f"\t\tFailed to fetch data for {owner}/{repo}: {e}")
 
                 try:
                     log.error(f"\t\t\tResponse: {resp.text}")
-                except:
-                    pass
-
+                except Exception as e:
+                    log.error(f"\t\t\tFailed to print response: {e}")
                 break
 
     # create a requests session
     with requests.Session() as client:
-        for repo in ["ibis-project/ibis"]:
+        for repo in [gh_repo]:
             log.info(f"Fetching data for {repo}...")
             for query in queries:
                 owner, repo_name = repo.split("/")
                 output_dir = os.path.join(
                     DATA_DIR,
                     RAW_DATA_DIR,
-                    RAW_DATA_GITHUB_DIR,
+                    RAW_DATA_GH_DIR,
                 )
                 os.makedirs(output_dir, exist_ok=True)
                 log.info(f"\tFetching data for {owner}/{repo_name} {query}...")

@@ -4,43 +4,29 @@ import ibis
 import streamlit as st
 import plotly.express as px
 
-from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
 from python_analytics_accelerator.dag.resources import Catalog
 
 # options
-## load .env
-load_dotenv()
-
 ## streamlit config
 st.set_page_config(layout="wide")
 
-## configure Ibis connections
-host = "clickpy-clickhouse.clickhouse.com"
-port = 443
-user = "play"
-database = "pypi"
+## plotly config
+px.defaults.template = "plotly_dark"
 
-ch_con = ibis.clickhouse.connect(
-    host=host,
-    port=port,
-    user=user,
-    database=database,
-)
+# connect to data
+with st.spinner("Connecting to data..."):
+    # connect to catalog
+    catalog = Catalog()
 
-ddb_con = ibis.duckdb.connect()
-
-## catalog config
-catalog = Catalog(con=ddb_con)
-
-
-# use precomputed data
-pulls = catalog.table("gold_gh_prs")
-stars = catalog.table("gold_gh_stars")
-forks = catalog.table("gold_gh_forks")
-issues = catalog.table("gold_gh_issues")
-commits = catalog.table("gold_gh_commits")
+    # get tables
+    pulls = catalog.table("gold_gh_prs").cache()
+    stars = catalog.table("gold_gh_stars").cache()
+    forks = catalog.table("gold_gh_forks").cache()
+    issues = catalog.table("gold_gh_issues").cache()
+    commits = catalog.table("gold_gh_commits").cache()
+    downloads = catalog.table("gold_pypi_downloads").cache()
 
 # display header stuff
 with open("readme.md") as f:
@@ -61,4 +47,14 @@ with st.expander("Show source code", expanded=False):
 ---
 """
 
+"""
+## stars
+"""
+
 st.dataframe(stars, use_container_width=True)
+
+"""
+## downloads
+"""
+
+st.dataframe(downloads, use_container_width=True)
