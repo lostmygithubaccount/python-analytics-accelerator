@@ -17,7 +17,9 @@ You can mix and match these components as needed.
 
 ## setup
 
-Get up and running in 4 commands.
+Get up and running in 5 steps.
+
+### install
 
 Install:
 
@@ -28,7 +30,8 @@ pip install python-analytics-accelerator
 > [!TIP]
 > This makes the `acc` CLI available as long as you have a Python environment with the package installed active. Type `acc` in your terminal to see available commands.
 
->
+### initialize
+
 Initialize:
 
 ```bash
@@ -43,17 +46,23 @@ acc init
 >
 > You can use `gh auth token` to print your GitHub token if you have the GitHub CLI installed.
 
+### ingest
+
 Ingest from external sources:
 
 ```bash
 acc ingest
 ```
 
+### ETL
+
 Run ETL:
 
 ```bash
 acc run
 ```
+
+### dashboard
 
 Open dashboard:
 
