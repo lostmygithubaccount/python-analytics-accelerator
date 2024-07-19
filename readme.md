@@ -6,14 +6,14 @@
 
 This project uses:
 
-1. **query UI**: Ibis (Python dataframe code and/or SQL)
-2. **query engine**: DuckDB and ClickHouse (local and remote)
-3. **storage**: Delta Lake tables (local and/or cloud storage)
+1. **User interface**: Ibis (Python dataframe code and/or SQL)
+2. **Execution engine**: DuckDB and ClickHouse (local and remote)
+3. **Data storage**: Delta Lake tables (local and/or cloud storage)
 
-You can swap out your query engine(s) or storage format(s) as needed, mixing and matching as needed in a **data mesh** fashion. You can also use composable query UIs in other languages like `dplyr` in R, though this project is Python-focused.
+You can swap out your execution engine(s) or data storage format(s) as needed, mixing and matching as in a **data mesh** fashion.
 
 > [!CAUTION]
-> This accelerator is not necessarily production-ready, but could be a good starting point. For now, it is primarily intended as an educational resource.
+> This accelerator is not necessarily production-ready, but might be a good starting point. For now, it is primarily intended as an educational resource.
 
 ## setup
 
@@ -84,4 +84,4 @@ ruff format .
 
 ## contributing
 
-Work in progress, contributions welcome. Consider opening an issue for discussion or reaching out in these early days.
+Work in progress, contributions welcome. Please consider asking before substantial changes in these early days.
