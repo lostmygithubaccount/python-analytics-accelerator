@@ -75,7 +75,7 @@ acc dashboard
 ```
 
 > [!TIP]
-> This creaetes a `metrics.py` file that you can customize.
+> This creates a `metrics.py` file that you can customize.
 
 ## development
 
