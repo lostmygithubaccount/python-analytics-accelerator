@@ -13,7 +13,7 @@ This project uses:
 You can mix and match these components as needed.
 
 > [!CAUTION]
-> This accelerator is not necessarily production-ready, but might be a good starting point. For now, it is primarily intended as an educational resource.
+> This accelerator is not production-ready, but could be a good starting point. For now it is primarily intended as an educational resource.
 
 ## setup
 
