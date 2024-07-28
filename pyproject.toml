@@ -18,8 +18,14 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    'shiny',
+    'shinywidgets',
+    'shinyswatch',
+    'httpx',
+    'requests',
+    #'faicons',
     'gcsfs',
-    'ibis-framework[duckdb,clickhouse,deltalake]',
+    'ibis-framework[duckdb,polars,clickhouse,deltalake]',
     'typer',
     'python-dotenv',
     'plotly',

@@ -39,10 +39,9 @@ def bronze_pypi_downloads():
 
     # read in raw data
     data_glob = os.path.join(
-        DATA_DIR, RAW_DATA_DIR, RAW_DATA_PYPI_DIR, "*downloads*.parquet"
+        DATA_DIR, RAW_DATA_DIR, RAW_DATA_PYPI_DIR, "start_date=*.parquet"
     )
     bronze_pypi_downloads = ibis.read_parquet(data_glob)
-    bronze_pypi_downloads = bronze_pypi_downloads.order_by(ibis._["count"].desc())
 
     # add loaded_at column
     bronze_pypi_downloads = bronze_pypi_downloads.pipe(add_loaded_at).pipe(constraints)
