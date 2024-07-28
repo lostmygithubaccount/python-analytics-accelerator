@@ -18,8 +18,8 @@ from python_analytics_accelerator.metrics import (
 )
 
 # dark themes
-px.defaults.template = "plotly_dark"
-ui.page_opts(theme=theme.darkly)
+# px.defaults.template = "plotly_dark"
+# ui.page_opts(theme=theme.darkly)
 
 # page options
 ui.page_opts(title="Python analytics accelerator", fillable=False, full_width=True)
@@ -49,7 +49,7 @@ with ui.sidebar(open="desktop"):
             f"{days:,}"
 
 
-with ui.nav_panel("GitHub data"):
+with ui.nav_panel("GitHub metrics"):
     with ui.layout_columns():
         with ui.value_box():
             "Total stars"
@@ -146,13 +146,13 @@ with ui.nav_panel("GitHub data"):
                     "truncate_by_stars",
                     "Truncate to:",
                     ["D", "W", "M", "Y"],
-                    selected="W",
+                    selected="D",
                 )
                 ui.input_select(
                     "group_by_stars",
                     "Group by:",
                     [None, "company"],
-                    selected="company",
+                    selected=None,
                 )
 
         @render_plotly
@@ -180,7 +180,7 @@ with ui.nav_panel("GitHub data"):
             return c
 
 
-with ui.nav_panel("PyPI data"):
+with ui.nav_panel("PyPI metrics"):
     with ui.layout_columns():
         with ui.value_box(full_screen=True):
             "Total downloads"
@@ -323,7 +323,7 @@ with ui.nav_panel("PyPI data"):
                     "truncate_by_downloads",
                     "Truncate to:",
                     ["D", "W", "M", "Y"],
-                    selected="W",
+                    selected="D",
                 )
                 ui.input_select(
                     "group_by_downloads",
