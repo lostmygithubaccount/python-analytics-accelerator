@@ -8,6 +8,7 @@ import requests
 import logging as log
 
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 
 from python_analytics_accelerator.dag.config import (
     DATA_DIR,
@@ -79,20 +80,29 @@ def ingest_pypi(pypi_package):
         database=database,
     )
 
-    # read in data from external source
-    t = ibis.memtable(
-        ch_con.table(
-            "pypi_downloads_per_day_by_version_by_installer_by_type_by_country"
-        )
-        .filter(ibis._["project"] == pypi_package)
-        .to_pyarrow()
-    )
-
+    # create output directory
     output_dir = os.path.join(DATA_DIR, RAW_DATA_DIR, RAW_DATA_PYPI_DIR)
     os.makedirs(output_dir, exist_ok=True)
-    log.info(f"\tWriting data to {output_dir}...")
-    t.to_parquet(os.path.join(output_dir, "downloads.parquet"))
-    log.info(f"\tData written to {output_dir}...")
+
+    # get table and metadata
+    t = ch_con.table(
+        "pypi_downloads_per_day_by_version_by_installer_by_type_by_country"
+    ).filter(ibis._["project"] == pypi_package)
+    min_date = t["date"].min().to_pyarrow().as_py()
+    max_date = t["date"].max().to_pyarrow().as_py()
+
+    # write data to parquet files
+    date = min_date
+    while date <= max_date:
+        old_date = date
+        date += timedelta(days=7)
+        a = t.filter(t["date"] >= old_date, t["date"] < date)
+
+        filename = f"start_date={old_date.strftime('%Y-%m-%d')}.parquet"
+        log.info(f"\tWriting data to {os.path.join(output_dir, filename)}...")
+        if a.count().to_pyarrow().as_py() > 0:
+            a.to_parquet(os.path.join(output_dir, filename))
+        log.info(f"\tData written to {os.path.join(output_dir, filename)}...")
 
 
 def ingest_gh(gh_repo):
