@@ -410,6 +410,7 @@ def forks_data(forks_t=forks_t):
     return t
 
 
+@reactive.calc
 def downloads_data(downloads_t=downloads_t):
     start_date, end_date = input.date_range()
 
@@ -420,6 +421,7 @@ def downloads_data(downloads_t=downloads_t):
     return t
 
 
+@reactive.calc
 def issues_data(issues_t=issues_t):
     start_date, end_date = input.date_range()
 
@@ -430,6 +432,7 @@ def issues_data(issues_t=issues_t):
     return t
 
 
+@reactive.calc
 def commits_data(commits_t=commits_t):
     start_date, end_date = input.date_range()
 
