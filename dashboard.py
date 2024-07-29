@@ -17,12 +17,18 @@ from python_analytics_accelerator.metrics import (
     downloads_t,
 )
 
+from config import GH_REPO, PYPI_PACKAGE
+
 # dark themes
 # px.defaults.template = "plotly_dark"
 # ui.page_opts(theme=theme.darkly)
 
 # page options
-ui.page_opts(title="Python analytics accelerator", fillable=False, full_width=True)
+ui.page_opts(
+    title="Python analytics accelerator",
+    fillable=False,
+    full_width=True,
+)
 
 # add page title and sidebar
 with ui.sidebar(open="desktop"):
@@ -50,6 +56,7 @@ with ui.sidebar(open="desktop"):
 
 
 with ui.nav_panel("GitHub metrics"):
+    f"GitHub repo: {GH_REPO}"
     with ui.layout_columns():
         with ui.value_box():
             "Total stars"
@@ -181,6 +188,7 @@ with ui.nav_panel("GitHub metrics"):
 
 
 with ui.nav_panel("PyPI metrics"):
+    f"PyPI package: {PYPI_PACKAGE}"
     with ui.layout_columns():
         with ui.value_box(full_screen=True):
             "Total downloads"
@@ -509,10 +517,11 @@ def _():
         # this in particular should be cleaned up in the DAG
         and "created_at" not in col
     ]
-    min_all_tables = min([x[1] for x in min_all_tables])
+    min_all_tables = min([x[1] for x in min_all_tables]) - timedelta(days=1)
+    max_now = datetime.now() + timedelta(days=1)
 
     ui.update_date_range(
         "date_range",
         start=(min_all_tables).strftime("%Y-%m-%d"),
-        end=datetime.now().strftime("%Y-%m-%d"),
+        end=max_now.strftime("%Y-%m-%d"),
     )
