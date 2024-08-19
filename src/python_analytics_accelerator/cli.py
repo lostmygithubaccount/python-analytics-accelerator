@@ -3,15 +3,19 @@ import typer
 import httpx
 import subprocess
 
-from python_analytics_accelerator.ingest import main as ingest_main
-from python_analytics_accelerator.dag.config import (
-    DAG_MODULE,
+from python_analytics_accelerator.config import (
     DATA_DIR,
     RAW_DATA_DIR,
-    BRONZE,
-    SILVER,
-    GOLD,
+    GH_PRS_TABLE,
+    GH_FORKS_TABLE,
+    GH_STARS_TABLE,
+    GH_ISSUES_TABLE,
+    GH_COMMITS_TABLE,
+    GH_WATCHERS_TABLE,
 )
+from python_analytics_accelerator.ingest import main as ingest_main
+from python_analytics_accelerator.etl.run import main as etl_main
+from python_analytics_accelerator.catalog import delta_table_path
 
 TYPER_KWARGS = {
     "no_args_is_help": True,
@@ -47,8 +51,16 @@ def check_project_config_exists() -> bool:
 
 def check_data_lake_exists() -> bool:
     # check that the data lake exists
-    for metal in [BRONZE, SILVER, GOLD]:
-        if not os.path.exists(os.path.join(DATA_DIR, metal)):
+    tables = [
+        GH_PRS_TABLE,
+        GH_FORKS_TABLE,
+        GH_STARS_TABLE,
+        GH_ISSUES_TABLE,
+        GH_COMMITS_TABLE,
+        GH_WATCHERS_TABLE,
+    ]
+    for table in tables:
+        if not os.path.exists(delta_table_path(table)):
             typer.echo("run `acc run` first!")
             return False
     return True
@@ -118,18 +130,6 @@ def ingest():
 
 
 @app.command()
-def dag():
-    """Start the dagster webserver/GUI."""
-    # ensure data is ingested
-    if not check_ingested_data_exists():
-        return
-
-    # start the dagster webserver
-    cmd = f"dagster dev -m {DAG_MODULE}"
-    subprocess.call(cmd, shell=True)
-
-
-@app.command()
 @app.command("etl", hidden=True)
 def run(
     job_name: str = typer.Option(
@@ -139,16 +139,22 @@ def run(
         help="Name of the job to run",
         show_default=True,
     ),
+    override: bool = typer.Option(
+        False, "--override", "-o", help="Override checks", show_default=True
+    ),
 ):
     """Run ETL."""
 
     # ensure data is ingested
-    if not check_ingested_data_exists():
+    if not override and not check_ingested_data_exists():
         return
 
-    # materialize all assets
-    cmd = f"dagster job execute -j {job_name} -m {DAG_MODULE}"
-    subprocess.call(cmd, shell=True)
+    try:
+        etl_main()
+    except KeyboardInterrupt:
+        typer.echo("stopping...")
+    except Exception as e:
+        typer.echo(f"error: {e}")
 
 
 @app.command()
@@ -197,10 +203,17 @@ def clean_lake(
     if not override and not check_data_lake_exists():
         return
 
-    medals = [BRONZE, SILVER, GOLD]
+    tables = [
+        GH_PRS_TABLE,
+        GH_FORKS_TABLE,
+        GH_STARS_TABLE,
+        GH_ISSUES_TABLE,
+        GH_COMMITS_TABLE,
+        GH_WATCHERS_TABLE,
+    ]
 
-    for metal in medals:
-        cmd = f"rm -rf {os.path.join(DATA_DIR, metal)}/"
+    for table in tables:
+        cmd = f"rm -rf {delta_table_path(table)}/"
         typer.echo(f"running: {cmd}...")
         subprocess.call(cmd, shell=True)
 

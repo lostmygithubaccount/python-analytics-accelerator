@@ -4,12 +4,12 @@
 set dotenv-load
 
 # variables
-module := "python_analytics_accelerator.dag"
 package := "python-analytics-accelerator"
 
 # aliases
 alias fmt:=format
-alias app:=dashboard
+alias render:=docs-build
+alias preview:=docs-preview
 
 # list justfile recipes
 default:
@@ -22,12 +22,14 @@ build:
 
 # setup
 setup:
-    @pip install -r dev-requirements.txt
-    just install
+    @pip install uv
+    @uv venv
+    @. .venv/bin/activate
+    @uv pip install --upgrade --resolution=highest -r dev-requirements.txt
 
 # install
 install:
-    @pip install -e .
+    @uv pip install -r dev-requirements.txt
 
 # uninstall
 uninstall:
@@ -51,29 +53,10 @@ release:
 clean-dist:
     @rm -rf dist
 
-# clean lake
-clean-lake:
-    @rm -rf datalake/bronze
-    @rm -rf datalake/silver
-    @rm -rf datalake/gold
+# docs-build
+docs-build:
+    @quarto render website
 
-# clean raw
-clean-raw:
-    @rm -rf datalake/raw
-
-# clean data
-clean-data:
-    just clean-raw
-    just clean-lake
-
-# open-dag
-open-dag:
-    @open http://127.0.0.1:3000/asset-groups
-
-# pres
-pres:
-    @quarto preview pres.qmd
-
-# dashboard
-dashboard:
-    @streamlit run metrics.py
+# docs-preview
+docs-preview:
+    @quarto preview website

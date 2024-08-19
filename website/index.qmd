@@ -1,0 +1,120 @@
+---
+title: "Python analytics accelerator"
+about:
+  template: solana
+  links:
+    - icon: github
+      text: github
+      href: https://github.com/lostmygithubaccount/python-analytics-accelerator
+---
+
+***A composable data system in a Python package.***
+
+![Source: [Voltron Data Composable Codex](https://voltrondata.com/codex)](img/layers.png)
+
+This project uses:
+
+1. **User interface**: [Ibis](https://github.com/ibis-project/ibis) (Python dataframe code and/or SQL)
+2. **Execution engine**: [DuckDB](https://github.com/duckdb/duckdb) (local) and [ClickHouse](https://github.com/clickhouse/clickhouse) (remote)
+3. **Data storage**: [Delta Lake](https://github.com/delta-io/delta) tables (local and/or cloud storage)
+
+You can mix and match these components as needed.
+
+## Setup
+
+Get up and running in 5 steps.
+
+::: {.callout-caution}
+A Python virtual environment is recommended. Use the [developer setup](#development) to create one automatically.
+:::
+
+### Installation
+
+Install:
+
+```bash
+pip install python-analytics-accelerator
+```
+
+::: {.callout-tip}
+This makes the `acc` CLI available as long as you have a Python environment with the package installed active. Type `acc` in your terminal to see available commands.
+:::
+
+### Initialize
+
+Initialize:
+
+```bash
+acc init
+```
+
+::: {.callout-tip}
+Edit the `config.py` file to the GitHub repository and PyPI package you want to analyze.
+:::
+
+::: {.callout-important}
+Edit the `.env` to add your GitHub token or otherwise set `GITHUB_TOKEN` as an environment variable. The token needs to have the `public_repo` read scope.
+
+You can use `gh auth token` to print your GitHub token if you have the GitHub CLI installed. For example:
+
+```bash
+echo "GITHUB_TOKEN=\"$(gh auth token)\"" > .env
+```
+:::
+
+### Ingest
+
+Ingest from external sources:
+
+```bash
+acc ingest
+```
+
+::: {.callout-tip}
+This creates JSON and Parquet data in `datalake/_raw`.
+:::
+
+### ETL
+
+Run ETL:
+
+```bash
+acc etl
+```
+
+::: {.callout-tip}
+This creates Delta Lake tables in `datalake/`.
+:::
+
+### Dashboard
+
+Open dashboard:
+
+```bash
+acc dashboard
+```
+
+::: {.callout-tip}
+This creates a `dashboard.py` file that you can customize.
+:::
+
+## Development
+
+Clone and change into the repository:
+
+```bash
+gh repo clone lostmygithubaccount/python-analytics-accelerator
+cd python-analytics-accelerator
+```
+
+[Install `just`](https://github.com/casey/just) and then:
+
+```bash
+just setup
+```
+
+Format your code:
+
+```bash
+just fmt
+```

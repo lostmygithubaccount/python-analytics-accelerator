@@ -39,10 +39,12 @@ with ui.sidebar(open="desktop"):
         end=datetime.now().strftime("%Y-%m-%d"),
     )
     ui.input_action_button("last_7d", "Last 7 days")
-    ui.input_action_button("last_30d", "Last 30 days")
-    ui.input_action_button("last_90d", "Last 90 days")
-    ui.input_action_button("last_183d", "Last 183 days")
+    ui.input_action_button("last_14d", "Last 14 days")
+    ui.input_action_button("last_28d", "Last 28 days")
+    ui.input_action_button("last_91d", "Last 91 days")
+    ui.input_action_button("last_182d", "Last 182 days")
     ui.input_action_button("last_365d", "Last 365 days")
+    ui.input_action_button("last_730d", "Last 730 days")
     ui.input_action_button("last_all", "All available data")
 
     with ui.value_box(full_screen=True):
@@ -237,10 +239,10 @@ with ui.nav_panel("PyPI metrics"):
             @render_plotly
             def downloads_roll():
                 t = downloads_t
-                min_date, max_date = date_range()
+                min_date, max_date = input.date_range()
 
                 t = t.mutate(
-                    timestamp=t["date"].cast("timestamp").truncate("D"),
+                    timestamp=t["date"].cast("timestamp"),
                 )
                 t = t.group_by("timestamp").agg(downloads=ibis._["count"].sum())
                 t = (
@@ -271,18 +273,37 @@ with ui.nav_panel("PyPI metrics"):
         with ui.card(full_screen=True):
             "Rolling 28d downloads by version"
 
+            with ui.card_header(
+                class_="d-flex justify-content-between align-items-center"
+            ):
+                with ui.layout_columns():
+                    ui.input_select(
+                        "version_style",
+                        "Version style",
+                        ["major", "major.minor", "major.minor.patch"],
+                        selected="major.minor",
+                    )
+
             @render_plotly
             def downloads_by_version_roll():
+                version_style = input.version_style()
+                min_date, max_date = input.date_range()
+
                 t = downloads_t
-                min_date, max_date = date_range()
 
                 t = t.mutate(
-                    version=t["version"].split(".")[0],
-                    timestamp=t["date"].cast("timestamp").truncate("D"),
+                    version=t["version"].split(".")[0]
+                    if version_style == "major"
+                    else t["version"].split(".")[0] + "." + t["version"].split(".")[1]
+                    if version_style == "major.minor"
+                    else t["version"],
+                    timestamp=t["date"].cast("timestamp"),
                 )
                 t = t.group_by("timestamp", "version").agg(
                     downloads=ibis._["count"].sum()
                 )
+                t = t.filter(~t["version"].startswith("v"))
+                t = t.filter(~t["version"].contains("dev"))
                 t = (
                     t.select(
                         "timestamp",
@@ -298,7 +319,6 @@ with ui.nav_panel("PyPI metrics"):
                             )
                         ),
                     )
-                    .filter(~t["version"].startswith("v"))
                     .filter(t["timestamp"] >= min_date, t["timestamp"] <= max_date)
                     .order_by("timestamp")
                 )
@@ -314,7 +334,9 @@ with ui.nav_panel("PyPI metrics"):
                                 t.distinct(on="version")["version"]
                                 .to_pyarrow()
                                 .to_pylist(),
-                                key=lambda x: int(x),
+                                # smartly convert string to float for sorting
+                                # key=lambda x: int(x),
+                                key=lambda x: tuple(map(float, x.split("."))),
                             )
                         )
                     },
@@ -328,12 +350,6 @@ with ui.nav_panel("PyPI metrics"):
         with ui.card_header(class_="d-flex justify-content-between align-items-center"):
             with ui.layout_columns():
                 ui.input_select(
-                    "truncate_by_downloads",
-                    "Truncate to:",
-                    ["D", "W", "M", "Y"],
-                    selected="D",
-                )
-                ui.input_select(
                     "group_by_downloads",
                     "Group by:",
                     [None, "version", "country_code", "installer", "type"],
@@ -342,11 +358,10 @@ with ui.nav_panel("PyPI metrics"):
 
         @render_plotly
         def downloads_flex():
-            truncate_by = input.truncate_by_downloads()
             group_by = input.group_by_downloads()
 
             t = downloads_data()
-            t = t.mutate(timestamp=t["date"].cast("timestamp").truncate(truncate_by))
+            t = t.mutate(timestamp=t["date"].cast("timestamp"))
             t = t.filter(~t["version"].startswith("v"))
             t = t.mutate(version=t["version"].split(".")[0])
             t = t.group_by(["timestamp", group_by] if group_by else "timestamp").agg(
@@ -463,31 +478,41 @@ def _():
 
 
 @reactive.effect
-@reactive.event(input.last_30d)
+@reactive.event(input.last_14d)
 def _():
     ui.update_date_range(
         "date_range",
-        start=(datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
+        start=(datetime.now() - timedelta(days=14)).strftime("%Y-%m-%d"),
         end=datetime.now().strftime("%Y-%m-%d"),
     )
 
 
 @reactive.effect
-@reactive.event(input.last_90d)
+@reactive.event(input.last_28d)
 def _():
     ui.update_date_range(
         "date_range",
-        start=(datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d"),
+        start=(datetime.now() - timedelta(days=28)).strftime("%Y-%m-%d"),
         end=datetime.now().strftime("%Y-%m-%d"),
     )
 
 
 @reactive.effect
-@reactive.event(input.last_183d)
+@reactive.event(input.last_91d)
 def _():
     ui.update_date_range(
         "date_range",
-        start=(datetime.now() - timedelta(days=183)).strftime("%Y-%m-%d"),
+        start=(datetime.now() - timedelta(days=91)).strftime("%Y-%m-%d"),
+        end=datetime.now().strftime("%Y-%m-%d"),
+    )
+
+
+@reactive.effect
+@reactive.event(input.last_182d)
+def _():
+    ui.update_date_range(
+        "date_range",
+        start=(datetime.now() - timedelta(days=182)).strftime("%Y-%m-%d"),
         end=datetime.now().strftime("%Y-%m-%d"),
     )
 
@@ -498,6 +523,16 @@ def _():
     ui.update_date_range(
         "date_range",
         start=(datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d"),
+        end=datetime.now().strftime("%Y-%m-%d"),
+    )
+
+
+@reactive.effect
+@reactive.event(input.last_730d)
+def _():
+    ui.update_date_range(
+        "date_range",
+        start=(datetime.now() - timedelta(days=730)).strftime("%Y-%m-%d"),
         end=datetime.now().strftime("%Y-%m-%d"),
     )
 
