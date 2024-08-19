@@ -71,7 +71,7 @@ acc ingest
 ```
 
 ::: {.callout-tip}
-This creates JSON and Parquet data in `datalake/_raw`.
+This creates data in `datalake/_raw`.
 :::
 
 ### ETL
