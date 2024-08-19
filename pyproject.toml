@@ -7,7 +7,7 @@ allow-direct-references = true
 
 [project]
 name = "python-analytics-accelerator"
-version = "0.2.3"
+version = "0.3.0"
 authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
 description = "Python analytics solution accelerator using composable data systems"
 readme = "readme.md"
@@ -18,21 +18,24 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'shiny',
-    'shinywidgets',
-    'shinyswatch',
+    # secret management
+    'python-dotenv',
+    # http
     'httpx',
     'requests',
-    #'faicons',
-    'gcsfs',
-    'ibis-framework[duckdb,polars,clickhouse,deltalake]',
+    # cli
     'typer',
-    'python-dotenv',
+    # cloud
+    'gcsfs',
+    # data
+    'ibis-framework[duckdb,polars,clickhouse,deltalake]',
+    # visualization
     'plotly',
-    'streamlit',
     'great-tables',
-    'dagster',
-    'dagster-webserver',
+    # dashboards and apps
+    'shiny>=1.0.0',
+    'shinywidgets>=0.3.3',
+    'shinyswatch>=0.7.0',
 ]
 
 [project.urls]

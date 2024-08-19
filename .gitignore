@@ -1,16 +1,14 @@
-*venv
+.venv
 .env
-.dagster
 datalake
-*.excalidraw
 
 .quarto
 pres.html
 pres.ipynb
 pres_files
 
+_output
+
 dist
 
 tmp*
-
-/.quarto/
