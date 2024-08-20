@@ -3,6 +3,10 @@ import typer
 import httpx
 import subprocess
 
+from python_analytics_accelerator.etl import main as etl_main
+from python_analytics_accelerator.ingest import main as ingest_main
+from python_analytics_accelerator.catalog import delta_table_path
+
 from python_analytics_accelerator.config import (
     DATA_DIR,
     RAW_DATA_DIR,
@@ -13,9 +17,6 @@ from python_analytics_accelerator.config import (
     GH_COMMITS_TABLE,
     GH_WATCHERS_TABLE,
 )
-from python_analytics_accelerator.ingest import main as ingest_main
-from python_analytics_accelerator.etl.run import main as etl_main
-from python_analytics_accelerator.catalog import delta_table_path
 
 TYPER_KWARGS = {
     "no_args_is_help": True,
