@@ -8,4 +8,4 @@
 
 ## Contributing
 
-Work in progress, contributions welcome. Please consider asking before substantial changes in these early days.
+Contributions welcome.
