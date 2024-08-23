@@ -60,3 +60,7 @@ docs-build:
 # docs-preview
 docs-preview:
     @quarto preview website
+
+# open
+open:
+    @open https://lostmygithubaccount.github.io/python-analytics-accelerator
